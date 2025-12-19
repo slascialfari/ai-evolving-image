@@ -4,43 +4,50 @@
   <meta charset="utf-8" />
   <title>Evolving Image</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <link rel="icon" href="data:," />
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
+      margin: 0; height: 100%;
       background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
-
-    img {
-      max-width: 90vw;
-      max-height: 90vh;
-      object-fit: contain;
+    img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+    .hud {
+      position: fixed; left: 12px; bottom: 12px;
+      background: rgba(0,0,0,.55); color: #ddd;
+      padding: 8px 10px; border-radius: 10px;
+      font-size: 12px; line-height: 1.3;
     }
+    .err { color: #ff8a8a; }
   </style>
 </head>
-
 <body>
-  <img
-    id="evolving-image"
-    src="images/latest.png"
-    alt="Evolving AI image"
-  />
+  <img id="evolving-image" src="images/latest.png" alt="Evolving AI image" />
+  <div class="hud" id="hud">Loading…</div>
 
   <script>
-    // How often the browser checks for a new image (ms)
     const REFRESH_INTERVAL = 30_000; // 30 seconds
+    const BASE_URL = "images/latest.png";
 
     const img = document.getElementById("evolving-image");
+    const hud = document.getElementById("hud");
 
-    setInterval(() => {
-      img.src = "images/latest.png?cb=" + Date.now();
-    }, REFRESH_INTERVAL);
+    function refresh() {
+      const url = BASE_URL + "?cb=" + Date.now();
+      img.src = url;
+      hud.textContent = "Last refresh: " + new Date().toLocaleTimeString();
+    }
+
+    img.addEventListener("error", () => {
+      hud.innerHTML = `<span class="err">Image failed to load.</span> Check that ${BASE_URL} exists in the repo.`;
+    });
+
+    // initial
+    refresh();
+    // periodic
+    setInterval(refresh, REFRESH_INTERVAL);
   </script>
 </body>
 </html>
